@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base App — engineer's orientation</title>
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --card: #ffffff;
+    --ink: #1d1b16;
+    --muted: #57534a;
+    --line: #ddd6c6;
+    --accent: #2f4a8a;
+    --code-bg: #f3efe4;
+    --current: #1f6b3a;
+    --verify: #8a5a00;
+    --deferred: #6b6b6b;
+    --proposed: #6a3b8f;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 18px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 20px 96px; }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 8px; }
+  h2 { font-size: 1.5rem; margin: 56px 0 12px; padding-top: 8px; border-top: 2px solid var(--line); }
+  h3 { font-size: 1.15rem; margin: 28px 0 8px; }
+  h1, h2, h3, section, nav.index { scroll-margin-top: 64px; }
+  p, li { max-width: 72ch; }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; white-space: pre-wrap; word-break: break-word; margin: 6px 0 16px;
+  }
+  pre code { background: none; padding: 0; }
+  .lead { font-size: 1.1rem; color: var(--muted); }
+  .boundary {
+    background: var(--card); border: 2px solid var(--ink); border-radius: 10px; padding: 16px 20px; margin: 20px 0;
+  }
+  .boundary p { margin: 4px 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 12px 0; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: stretch; }
+  .grid3 .card, .grid2 .card { margin: 0; }
+  .label { font-size: 0.9rem; font-weight: 700; color: var(--muted); margin: 14px 0 0; }
+  .card .label { letter-spacing: 0.04em; text-transform: uppercase; }
+  .chip {
+    display: inline-block; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    border: 1.5px solid currentColor; border-radius: 999px; padding: 0 8px; line-height: 1.6; white-space: nowrap; vertical-align: 2px;
+  }
+  .current { color: var(--current); }
+  .verify { color: var(--verify); }
+  .deferred { color: var(--deferred); }
+  .proposed { color: var(--proposed); }
+  table { border-collapse: collapse; width: 100%; background: var(--card); margin: 12px 0 20px; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+  .table-wrap { overflow-x: auto; }
+  nav.index { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 24px 0; }
+  nav.index ol { margin: 6px 0; padding-left: 22px; columns: 2; column-gap: 32px; }
+  nav.index li { break-inside: avoid; margin: 3px 0; }
+  .trace { list-style: none; padding: 0; margin: 12px 0; counter-reset: step; }
+  .trace > li {
+    background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px;
+    padding: 10px 14px; margin: 10px 0; max-width: none;
+  }
+  .trace .head { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+  .trace .num { font-weight: 800; font-family: ui-monospace, Menlo, monospace; }
+  .trace .owner { font-family: ui-monospace, Menlo, monospace; font-size: 0.86rem; color: var(--muted); }
+  .trace .action { margin: 4px 0; }
+  .note { border-left: 4px solid var(--verify); background: #fff8e8; padding: 8px 14px; border-radius: 6px; margin: 12px 0; }
+  .back { position: fixed; right: 16px; bottom: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 0.9rem; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  footer { color: var(--muted); font-size: 0.9rem; margin-top: 48px; }
+  @media (max-width: 700px) {
+    body { font-size: 17px; }
+    nav.index ol { columns: 1; }
+    .grid2 { grid-template-columns: 1fr; }
+    /* Wide tables become one labelled card per row instead of scrolling sideways. */
+    .stack-table, .ledger-table { background: none; border: 0; }
+    .stack-table thead, .ledger-table thead { display: none; }
+    .stack-table tr, .ledger-table tr { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; padding: 6px 12px; }
+    .stack-table td, .ledger-table td { display: block; border: 0; padding: 4px 0; }
+    .stack-table td::before, .ledger-table td::before { display: block; font-size: 0.9rem; font-weight: 700; color: var(--muted); }
+    .stack-table td:nth-child(1)::before { content: "Module"; }
+    .stack-table td:nth-child(2)::before { content: "Does"; }
+    .stack-table td:nth-child(3)::before { content: "Handles"; }
+    .stack-table td:nth-child(4)::before { content: "Must not become"; }
+    .stack-table td:nth-child(5)::before { content: "Status"; }
+    .ledger-table td:nth-child(1) { font-weight: 700; }
+    .ledger-table td:nth-child(2)::before { content: "Android (emulator)"; }
+    .ledger-table td:nth-child(3)::before { content: "iOS (simulator)"; }
+    .ledger-table td:nth-child(4)::before { content: "Web (Chrome)"; }
+    .ledger-table td.all::before { content: "All platforms"; }
+    .back { display: none; }
+    h1 { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>Base App — engineer's orientation</h1>
+  <p class="lead">A five-to-ten-minute map of <code>ivan-i1/BaseApp</code> at commit <code>81ddd19</code>. Its job is to get you to the right file quickly. The code, <a href="../README.md">README.md</a> and <a href="../CLAUDE.md">CLAUDE.md</a> remain the authority. This page is <strong>not</strong> evidence that anything is published to a store or deployed.</p>
+  <p>Status labels are used the same way everywhere: <span class="chip current">Current</span> means in the code and observed working; <span class="chip verify">Verify</span> means in the code but not yet observed on the platform named; <span class="chip deferred">Deferred</span> means deliberately not included; <span class="chip proposed">Proposed</span> means an interface or plan exists (here or in a sibling app) but nothing is built.</p>
+</header>
+
+<nav class="index" id="index" aria-label="Page index">
+  <strong>Index</strong>
+  <ol>
+    <li><a href="#boundary">What it does and does not do</a> <span class="chip current">Current</span></li>
+    <li><a href="#stack">Modules and what each must not become</a> <span class="chip current">Current</span></li>
+    <li><a href="#walkthrough">Walkthrough: one frame, one launch, one refusal</a> <span class="chip current">Current</span> A, B · <span class="chip verify">Verify</span> C</li>
+    <li><a href="#mechanics">Two mechanisms that make it work</a> <span class="chip current">Current</span></li>
+    <li><a href="#data">Data anatomy: what is public, what stays private</a> <span class="chip current">Current</span></li>
+    <li><a href="#ops">Developer lifecycle: build, rename, sign</a> <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</li>
+    <li><a href="#ledger">Verification ledger by platform</a> <span class="chip verify">Verify</span></li>
+    <li><a href="#deferred">Not included</a> <span class="chip deferred">Deferred</span></li>
+    <li><a href="#docs">Further detail: which file to open</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="boundary">
+<h2>1. What it does and does not do <span class="chip current">Current</span></h2>
+<div class="boundary">
+  <p><strong>Your app's screens and assets → Base App → one Expo project that runs, debugs and bundles on Android, iOS and web.</strong></p>
+  <p>Base App does <strong>not</strong> contain game rules, a backend server, user accounts or any vendor API key.</p>
+</div>
+<div class="grid2">
+  <div class="card"><p class="label">Does</p><p>Gives a new app the parts that kept recurring across Bounce Fidget, Pinbolita, Tessera, Bingepick and proyecto-comun, already wired together: navigation, translations in 6 languages, saved settings, theme, menus, a game loop, Phaser, audio, haptics, tilt, an API/LLM client, icon generation, an Android release-signing plugin (your keys stay outside the repo, see Private machinery) and a rename script.</p></div>
+  <div class="card"><p class="label">Does not</p><p>Decide gameplay, host anything, or hold secrets. The demo screens under <code>src/app/demos/</code> are examples to delete, not features. It never calls a model vendor directly; that is your backend's job.</p></div>
+  <div class="card"><p class="label">Public handoff</p><p>What ships to users: the JS bundle (including every <code>EXPO_PUBLIC_*</code> value, which is readable by anyone), the assets, and the requests the app sends.</p></div>
+  <div class="card"><p class="label">Private machinery</p><p>What never ships: <code>credentials/</code> (upload keystore and passwords, gitignored), <code>.env.local</code>, and on your backend the vendor keys and prompts. On the device, settings and the client id stay in local storage.</p></div>
+</div>
+</section>
+
+<!-- 2 -->
+<section id="stack">
+<h2>2. Modules and what each must not become <span class="chip current">Current</span></h2>
+<p>Each engine is a self-contained folder. To drop one, delete the folder and its demo screen. Pure logic lives in import-free files with unit tests; anything that touches a device lives next to it.</p>
+<div class="table-wrap">
+<table class="stack-table">
+  <thead><tr><th>Module</th><th>Does</th><th>Handles</th><th>Must not become</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td><a href="../src/app/"><code>src/app/</code></a> (Expo Router)</td><td>Screens and the root layout: providers, splash hold until settings load, translated titles</td><td>Routes only</td><td>A place for logic, hooks or components (those live outside <code>src/app/</code>)</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/core/settings/"><code>core/settings</code></a></td><td>One persisted store; validates every field on load with <code>mergeSettings</code></td><td>language, theme, sound, vibration, volume</td><td>A second copy in module variables (frame loops read <code>useSettings.getState()</code> directly)</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/core/i18n/"><code>core/i18n</code></a></td><td>i18next with device-locale detection, plural polyfills, typed keys</td><td>6 JSON files: en, es, fr, it, de, pt</td><td>A source of untranslated strings (a test fails if any language misses a key)</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/core/theme/"><code>core/theme</code></a></td><td>Light/dark colour tokens chosen from the setting or the device</td><td>Colours, spacing, radius, type sizes</td><td>Hard-coded colours in screens</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/menu/"><code>menu</code></a></td><td>A stack of menu ids (model), a store (controller), <code>MenuHost</code> (view); Android back pops</td><td>pause, options, any app menu</td><td>Navigation between screens (that is Expo Router's job)</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/engines/game-loop/"><code>engines/game-loop</code></a></td><td>Wraps react-native-game-engine; hands every system a refresh-rate-normalised <code>dtf</code></td><td>Entities, systems, its own measured bounds</td><td>A physics engine (collision beyond screen edges is yours to add)</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td><a href="../src/engines/phaser/"><code>engines/phaser</code></a></td><td>Runs one Phaser scene in the page on web and in an offline WebView on Android/iOS</td><td>Scenes, the <code>bridge.ts</code> message types</td><td>A dependency of React Native code (scenes import only <code>phaser</code> and relative files)</td><td><span class="chip current">Current</span> web, Android · <span class="chip verify">Verify</span> iOS</td></tr>
+    <tr><td><a href="../src/engines/audio/"><code>engines/audio</code></a></td><td>Sound banks with overlapping voices and non-repeating variants; user-picked custom sounds</td><td>Generated WAVs in <code>assets/sounds/</code></td><td>Music or long playback (it is built for short effects)</td><td><span class="chip verify">Verify</span> (not listened to)</td></tr>
+    <tr><td><a href="../src/engines/haptics/haptics.ts"><code>engines/haptics</code></a></td><td>One entry point that honours the Vibration setting and is a no-op on web</td><td>tap, impact, success, error</td><td>Direct <code>expo-haptics</code> calls scattered in screens</td><td><span class="chip verify">Verify</span> (emulators have no actuator)</td></tr>
+    <tr><td><a href="../src/engines/sensors/"><code>engines/sensors</code></a></td><td>Accelerometer → smoothed, calibrated, dead-zoned "downhill" vector; shake events</td><td>Module-level <code>tilt</code> read each frame</td><td>React state (it updates every 16 ms)</td><td><span class="chip verify">Verify</span> real tilt; iOS axis signs unverified</td></tr>
+    <tr><td><a href="../src/engines/api/"><code>engines/api</code></a></td><td>JSON client with client id, retries, typed errors, 429 handling, text/SSE streaming; <code>LLMProvider</code> interface with a fake and an HTTP provider</td><td>Requests to <em>your</em> backend</td><td>A model vendor client (vendor keys never belong in the bundle)</td><td><span class="chip current">Current</span> fake provider · <span class="chip verify">Verify</span> HTTP</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="walkthrough">
+<h2>3. Walkthrough: one frame, one launch, one refusal <span class="chip current">Current</span> A, B · <span class="chip verify">Verify</span> C</h2>
+<p>Three scenarios, each taking a different path. Every number in scenario A and B was produced by running Base App's own modules on these inputs, not worked out by hand. The inputs are <strong>illustrative</strong>; the outputs are what the code returns for them. Separately, the on-screen result of A (the ball rolling, bouncing and the counter rising) and of B (Spanish surviving a restart) was observed on the Android emulator.</p>
+
+<h3 id="scenario-a">A. One game-loop frame: a tilt sample becomes a bounce, a sound and a buzz</h3>
+<p>Setup: the <code>/demos/game-loop</code> screen on a 120 Hz phone. The ball (radius 22) is 23 px from the left edge, moving left at 3 px/frame. The screen area is 360 × 560.</p>
+<p class="label">Every block in this trace is a semantic display excerpt: values computed by the real functions, not a stored or wire shape.</p>
+<ol class="trace">
+  <li><div class="head"><span class="num">A1</span><span class="owner">expo-sensors → tiltSensor.ts:onSample</span></div>
+    <p class="action">The accelerometer delivers a sample (every 16 ms, <code>tiltSensor.ts:54</code>). <code>deviceToScreen</code> flips X only, because device Y grows up while screen Y grows down (<code>tilt.ts:39</code>).</p>
+    <pre><code>sample (g) {x: 0.2, y: 0.1}  →  screen {x: -0.2, y: 0.1}</code></pre></li>
+  <li><div class="head"><span class="num">A2</span><span class="owner">tiltSensor.ts:43</span></div>
+    <p class="action">Smoothed toward the sample (weight 0.35), then the 0.03 g dead zone is subtracted so input starts from zero at its edge instead of jumping. The result is written to the module-level <code>tilt.gravity</code>.</p>
+    <pre><code>smoothed {x: -0.07, y: 0.035}  →  tilt.gravity {x: -0.0432, y: 0.0216}</code></pre></li>
+  <li><div class="head"><span class="num">A3</span><span class="owner">GameLoopView → frameScale.ts:12</span></div>
+    <p class="action">RNGE ticks on <code>requestAnimationFrame</code>. At 120 Hz the delta is 8.33 ms, so <code>dtf</code> = 0.5. Every force is multiplied by it; that is why the ball moves at the same speed on 60 Hz and 120 Hz screens.</p>
+    <pre><code>deltaMs 8.33 → dtf 0.5</code></pre></li>
+  <li><div class="head"><span class="num">A4</span><span class="owner">demos/game-loop.tsx:63 → bounce.ts:22 stepBall</span></div>
+    <p class="action">The system scales tilt by <code>TILT_ACCEL</code> 1.3, integrates with friction 0.995 and bounciness 0.7, and hits the left wall: position clamps to the radius, the impact speed is taken <em>before</em> reflection, then velocity reverses at 70%.</p>
+    <pre><code>gravity in  {x: -0.0561, y: 0.0281}
+ball in     {x: 23, vx: -3,     vy: 0}
+ball out    {x: 22, vx: 2.1143, vy: 0.014}
+impact      3.0205</code></pre></li>
+  <li><div class="head"><span class="num">A5</span><span class="owner">demos/game-loop.tsx:66–68 → SoundBank.ts:55, haptics.ts:15</span></div>
+    <p class="action">The impact is above the 1.5 feedback floor, so three things happen. The sound bank plays a non-repeating bounce variant at gain <code>impactGain(3.02, 14, 0.25)</code>. It skips playback entirely when Sound is off (<code>SoundBank.ts:57</code>). Haptics fires a <code>light</code> impact (under 5) unless Vibration is off or the platform is web (<code>haptics.ts:8</code>). The bounce counter increments.</p>
+    <pre><code>gain 0.25 (the floor; 3.02 / 14 = 0.22)   haptic "light"   bounces + 1</code></pre>
+    <p><span class="chip verify">Verify</span> The counter was observed. The sound and the buzz were <strong>not</strong>: nobody listened, and emulators have no vibration motor.</p></li>
+  <li><div class="head"><span class="num">A6</span><span class="owner">RNGE DefaultRenderer → BallView</span></div>
+    <p class="action">RNGE re-renders the mutated entity. <code>BallView</code> starts with <code>'use no memo'</code>. Without it the React Compiler memoises the component and the ball freezes on its first frame. This was observed on Android and web: 2 renders instead of thousands.</p></li>
+</ol>
+
+<h3 id="scenario-b">B. A launch: stored settings, possibly corrupt, decide language and theme before the first frame</h3>
+<p>This path resolves ambiguous input: a saved value may be old, corrupt or set to "system", and the app must settle on one language and theme before anything renders.</p>
+<ol class="trace">
+  <li><div class="head"><span class="num">B1</span><span class="owner">_layout.tsx → expo-splash-screen</span></div>
+    <p class="action">The splash stays up while the settings store loads from storage, so the first frame never flashes the wrong language or theme.</p></li>
+  <li><div class="head"><span class="num">B2</span><span class="owner">AsyncStorage → zustand persist</span></div>
+    <p class="action">The stored record is read. The block below is a <strong>real stored record</strong>, pulled from the Android emulator's app storage on 2026-10-20 after the language was switched to Spanish. It contains no personal data.</p>
+    <p class="label">Real artifact — key <code>@base-app:settings</code></p>
+    <pre><code>{"state":{"language":"es","theme":"system","sound":true,"vibration":true,"volume":0.8},"version":1}</code></pre></li>
+  <li><div class="head"><span class="num">B3</span><span class="owner">store.ts merge → settings.ts mergeSettings</span></div>
+    <p class="action">Only <code>state</code> reaches <code>mergeSettings</code>. Each field is validated on its own: a bad value falls back to that field's default, numbers clamp, unknown keys are dropped. Below is what the real function returns for a corrupted record.</p>
+    <p class="label">Semantic display excerpt — input and output of <code>mergeSettings</code></p>
+    <pre><code>in   {language: "xx", theme: "neon", sound: "yes", vibration: true, volume: 7, legacyFlag: 1}
+out  {language: "system", theme: "system", sound: true, vibration: true, volume: 1}</code></pre></li>
+  <li><div class="head"><span class="num">B4</span><span class="owner">core/i18n → languages.ts resolveLanguage</span></div>
+    <p class="action">An explicit choice wins. "system" takes the first device locale whose language ships. Nothing matching falls back to English. Plural forms then come from <code>Intl.PluralRules</code>, polyfilled because Hermes lacks it.</p>
+    <p class="label">Semantic display excerpt — calls and return values</p>
+    <pre><code>("es",     [ja-JP, pt-BR])        → "es"
+("system", [ja-JP, pt-BR, en-US]) → "pt"
+("system", [ja-JP])               → "en"
+t("gameLoop.bounces", {count: 6}) → "6 rebotes"   (observed on Android)</code></pre></li>
+  <li><div class="head"><span class="num">B5</span><span class="owner">menu/menuModel.ts menuReducer</span></div>
+    <p class="action">During play, a tap opens the pause menu, which stops the loop (<code>running={!paused}</code>, <code>game-loop.tsx:80</code>). The same Options menu edits the same store, and a language change re-renders every screen live.</p>
+    <p class="label">Semantic display excerpt — menu stack after each action, from <code>menuReducer</code></p>
+    <pre><code>push pause → [pause]   push options → [pause, options]   pop → [pause]   closeAll → []</code></pre></li>
+</ol>
+
+<h3 id="scenario-c">C. A boundary case: the backend refuses with 429 <span class="chip verify">Verify</span></h3>
+<p>This path shows a typed refusal rather than a success. Steps C1–C4 are in the code and their pure parts are unit-tested, but the full path has <strong>not been observed on a device</strong>: the end-to-end attempt on the emulator didn't complete. Requires <code>EXPO_PUBLIC_API_URL</code>.</p>
+<ol class="trace">
+  <li><div class="head"><span class="num">C1</span><span class="owner">demos/api.tsx → llm/HttpStreamProvider.ts → client.ts streamText</span></div>
+    <p class="action">The screen sends an <code>LLMRequest</code> to <code>/v1/chat</code> on your backend, with headers <code>x-client-id</code> (persisted install id), <code>content-type: application/json</code> and <code>accept: text/plain, text/event-stream, application/json</code>.</p>
+    <p class="label">Schema-valid against <a href="../src/engines/api/llm/types.ts"><code>LLMRequest</code></a> — the complete request body</p>
+    <pre><code>{"messages":[{"role":"user","content":"hola"}],"locale":"es"}</code></pre></li>
+  <li><div class="head"><span class="num">C2</span><span class="owner">your backend</span></div>
+    <p class="action">The backend, not this app, decides the quota. Tessera's relay is the reference: a per-client daily limit that answers 429 with a <code>Retry-After</code> header and/or JSON <code>retryAfterSeconds</code>. The client id is <strong>not authentication</strong>; the backend must not trust it for anything beyond rate limiting.</p></li>
+  <li><div class="head"><span class="num">C3</span><span class="owner">client.ts errorFor → retry.ts</span></div>
+    <p class="action">429 is not retried (<code>isRetryable(429)</code> is false; the server said when to come back). Network errors and 5xx are retried twice with backoff. The header becomes milliseconds and a <code>RateLimitError</code> is thrown.</p>
+    <p class="label">Semantic display excerpt — return values of <code>parseRetryAfter</code> and <code>backoffDelay</code></p>
+    <pre><code>Retry-After "42" → retryAfterMs 42000          backoff for 5xx: 400, 800, 1600 ms (+ up to 50% jitter)</code></pre></li>
+  <li><div class="head"><span class="num">C4</span><span class="owner">demos/api.tsx</span></div>
+    <p class="action">The screen shows the localised message. With no Retry-After it assumes 60 s.</p>
+    <p class="label">Translated string <code>api.rateLimited</code> (es) with seconds = 42</p>
+    <pre><code>"Demasiadas solicitudes. Inténtalo de nuevo en 42 s."</code></pre></li>
+</ol>
+</section>
+
+<!-- 4 -->
+<section id="mechanics">
+<h2>4. Two mechanisms that make it work <span class="chip current">Current</span></h2>
+
+<h3>One store, read two ways</h3>
+<p>The game loop, the sensor callback and the audio engine run outside React's render cycle, every frame. They read settings synchronously with <code>useSettings.getState()</code>, while screens subscribe with <code>useSettings(selector)</code>. Bounce Fidget kept settings in module variables and wrote to both places; forgetting one write made the slider move while the ball ignored it. One store removes that class of bug.</p>
+<p class="label">Illustrative diagram</p>
+<pre><code>Settings screen ──set()──► useSettings (zustand, persisted, validated)
+                                 │
+          React screens ◄── subscribe        frame loop / sensors / audio ◄── getState()</code></pre>
+
+<h3>Phaser: one scene, two hosts</h3>
+<p>Phaser needs a DOM and a canvas, and React Native has neither. So the same scene code runs in two places:</p>
+<div class="grid3">
+  <div class="card"><p class="label">Shared</p><p><code>scenes/*.ts</code> + <code>game.ts</code> import only <code>phaser</code> and relative files. They talk to the host only through <a href="../src/engines/phaser/bridge.ts"><code>bridge.ts</code></a>.</p></div>
+  <div class="card"><p class="label">Web host</p><p><code>PhaserView.web.tsx</code> dynamic-imports <code>game.ts</code> and mounts Phaser into the page. Phaser lands in its own chunk (1.66 MB in the <code>expo export</code> output), not the main bundle.</p></div>
+  <div class="card"><p class="label">Native host</p><p><code>npm run phaser:build</code> (also run on postinstall) bundles Phaser + scenes into one HTML string (1,358 KB, as the script reports). <code>PhaserView.tsx</code> loads it in a WebView. It works offline.</p></div>
+</div>
+<p class="label">Schema-valid against <code>GameEvent</code> in <a href="../src/engines/phaser/bridge.ts">bridge.ts</a> — game → host, sent as a JSON string through <code>postMessage</code> on native</p>
+<pre><code>{"type":"bounce","count":11}</code></pre>
+<p class="label">Schema-valid against <code>HostCommand</code> — host → game; native wraps it as <code>window.__hostCommand(…)</code></p>
+<pre><code>{"type":"pause"}</code></pre>
+<p>The menu system drives the game: any open menu sends <code>pause</code>, and closing sends <code>resume</code>.</p>
+</section>
+
+<!-- 5 -->
+<section id="data">
+<h2>5. Data anatomy: what is public, what stays private <span class="chip current">Current</span></h2>
+<div class="grid3">
+  <div class="card"><p class="label">In the bundle — public</p><ul>
+    <li>All JS, translations, sounds, images</li>
+    <li><code>EXPO_PUBLIC_API_URL</code> and any other <code>EXPO_PUBLIC_*</code> value (inlined at build time)</li>
+    <li>The app identity in <code>app.json</code></li></ul></div>
+  <div class="card"><p class="label">On the device — not shared unless sent</p><ul>
+    <li><code>@&lt;slug&gt;:settings</code> — settings record (B2)</li>
+    <li><code>@&lt;slug&gt;:client-id</code> — anonymous UUID, created on first HTTP request</li>
+    <li><code>@&lt;slug&gt;:sound:&lt;slot&gt;</code> — custom sound <code>{uri, name}</code>, file copied to the documents folder</li></ul>
+    <p>The slug prefix keeps two apps apart on web, where every app you develop shares <code>localhost:8081</code> storage.</p></div>
+  <div class="card"><p class="label">Never in the repo or bundle</p><ul>
+    <li><code>credentials/</code> — upload keystore + passwords, read by Gradle at build time only</li>
+    <li><code>.env.local</code></li>
+    <li>Vendor API keys and prompts — your backend's</li></ul></div>
+</div>
+<p>"Not shared" is not "secret": once the client id is sent to your backend it is observable and replayable. What the backend must re-check itself: anything the app sends. A request reaching the backend proves nothing about the sender. The client id is replayable, and the bundle can be read.</p>
+</section>
+
+<!-- 6 -->
+<section id="ops">
+<h2>6. Developer lifecycle: build, rename, sign <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</h2>
+<p>This is separate from the runtime above: what you do to make a new app from Base App and ship it.</p>
+<ol class="trace">
+  <li><div class="head"><span class="num">D1</span><span class="owner">scripts/rename-app.js</span> <span class="chip current">Current</span></div>
+    <p class="action"><code>npm run rename -- "Laberinto de Bolita"</code> rewrote <code>app.json</code> (used for real on 2026-10-20). Prebuild then carried the ids into both native projects.</p>
+    <p class="label">Real output of <code>npm run rename</code>, condensed to one line per id</p>
+    <pre><code>slug laberinto-de-bolita · scheme laberintodebolita
+android io.github.ivan_i1.laberinto_de_bolita · ios io.github.ivan-i1.laberinto-de-bolita
+storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pre></li>
+  <li><div class="head"><span class="num">D2</span><span class="owner">scripts/generate-icons.mjs</span> <span class="chip current">Current</span></div>
+    <p class="action">One square image in <code>assets/source/icon.png</code> (plus an optional transparent <code>foreground.png</code>) → iOS/Android icon, adaptive foreground/background/monochrome layers, splash, favicon, and the 512 px Play icon. Needs ImageMagick 7.</p></li>
+  <li><div class="head"><span class="num">D3</span><span class="owner">expo prebuild → plugins/withReleaseSigning.js</span> <span class="chip verify">Verify</span></div>
+    <p class="action">On every prebuild the plugin adds a release signing config that reads <code>credentials/keystore.properties</code> at Gradle time. Without it, release builds fall back to the debug key with a warning, and Play rejects those. The patch was confirmed in the generated <code>build.gradle</code>. <strong>A signed release build has not been run.</strong></p></li>
+  <li><div class="head"><span class="num">D4</span><span class="owner">npm run check · export:web · export:native</span> <span class="chip current">Current</span></div>
+    <p class="action">Typecheck + 50 unit tests (10 suites) + lint, then bundle builds for all three platforms. All ran green on <code>81ddd19</code> on 2026-10-20. These gates only reach the pure logic; rendering, audio, haptics and sensors need a device.</p></li>
+</ol>
+</section>
+
+<!-- 7 -->
+<section id="ledger">
+<h2>7. Verification ledger by platform <span class="chip verify">Verify</span></h2>
+<p>What was actually observed on 2026-10-20, and on what. <span class="chip verify">Verify</span> here means nobody has looked yet on that platform, not that it is broken.</p>
+<div class="table-wrap">
+<table class="ledger-table">
+  <thead><tr><th>Feature</th><th>Android (emulator)</th><th>iOS (simulator)</th><th>Web (Chrome)</th></tr></thead>
+  <tbody>
+    <tr><td>Launch, splash, Home</td><td><span class="chip current">Current</span></td><td><span class="chip current">Current</span></td><td><span class="chip current">Current</span></td></tr>
+    <tr><td>Settings, live language switch, persistence across restart</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip current">Current</span> screen renders</td></tr>
+    <tr><td>Theme follows the device (light on Android, dark in headless Chrome)</td><td><span class="chip current">Current</span></td><td><span class="chip current">Current</span> light</td><td><span class="chip current">Current</span></td></tr>
+    <tr><td>Game loop + pause/options menus</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip current">Current</span> ball renders (fallback gravity)</td></tr>
+    <tr><td>Phaser + bridge events</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip current">Current</span></td></tr>
+    <tr><td>API demo with the offline fake provider (no network)</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td></tr>
+    <tr><td>HTTP streaming and 429 against a real server</td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td></tr>
+    <tr><td>Real tilt, shake, haptics, audible sound</td><td colspan="3" class="all"><span class="chip verify">Verify</span> on a physical phone. Emulators give a fixed sensor reading, no actuator and no listener.</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="note"><strong>Known fragile spots</strong>: React Compiler versus RNGE renderers (A6); the <code>import.meta</code> transform in <code>babel.config.js</code>, without which the web build is a blank page; and platform sign differences in expo-sensors (expo issue #19229), with signs tuned on Android only.</div>
+</section>
+
+<!-- 8 -->
+<section id="deferred">
+<h2>8. Not included <span class="chip deferred">Deferred</span></h2>
+<ul>
+  <li><span class="chip deferred">Deferred</span> <strong>EAS build config</strong> (<code>eas.json</code>). Builds are local (<code>expo run:*</code>, Gradle). EAS can be added later.</li>
+  <li><span class="chip deferred">Deferred</span> <strong>Ads, analytics, leaderboards.</strong> None of the source apps or plans use them; leaderboards were explicitly deferred to local-only in the Dino-runner plan.</li>
+  <li><span class="chip deferred">Deferred</span> <strong>UI / device tests.</strong> Only pure logic is unit-tested.</li>
+  <li><span class="chip proposed">Proposed</span> <strong>On-device LLM provider.</strong> Tessera has a stub interface for one. Base App's <code>LLMProvider</code> would accept it, but none exists.</li>
+  <li><span class="chip deferred">Deferred</span> <strong>Collision beyond screen edges.</strong> Maze walls, holes and sub-stepping belong to the app (see <code>laberinto-de-bolita</code>'s ADV-REV-V1 §3.4).</li>
+</ul>
+</section>
+
+<!-- 9 -->
+<section id="docs">
+<h2>9. Further detail: which file to open</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Open</th><th>When you need</th></tr></thead>
+  <tbody>
+    <tr><td><a href="../README.md">README.md</a></td><td>Commands, the module table, icons, bundling, signing, debugging, configuration</td></tr>
+    <tr><td><a href="../CLAUDE.md">CLAUDE.md</a></td><td>The rules that are easy to break, with the reason for each</td></tr>
+    <tr><td><a href="../AGENTS.md">AGENTS.md</a></td><td>Expo's general rules (use <code>npx expo install</code>; native folders are generated)</td></tr>
+    <tr><td><a href="../app.json">app.json</a></td><td>Identity, blocked Android permissions, plugins, splash colours, React Compiler flag</td></tr>
+    <tr><td><a href="../src/core/settings/settings.ts">core/settings/settings.ts</a></td><td>The settings type, defaults and validation (edit all three together)</td></tr>
+    <tr><td><a href="../src/core/i18n/locales/en.json">core/i18n/locales/en.json</a></td><td>The reference string file; the other five must match its keys</td></tr>
+    <tr><td><a href="../src/engines/phaser/bridge.ts">engines/phaser/bridge.ts</a></td><td>The full host ↔ game message contract</td></tr>
+    <tr><td><a href="../src/engines/api/llm/types.ts">engines/api/llm/types.ts</a></td><td>The <code>LLMRequest</code> / <code>LLMProvider</code> contract your backend must match</td></tr>
+    <tr><td><a href="../src/engines/api/client.ts">engines/api/client.ts</a></td><td>Headers, retries, 429, streaming</td></tr>
+    <tr><td><a href="../__tests__/">__tests__/</a></td><td>Executable statements of every pure rule on this page</td></tr>
+    <tr><td><a href="../metro.config.js">metro.config.js</a> · <a href="../babel.config.js">babel.config.js</a></td><td>The two bundler workarounds and why each exists</td></tr>
+    <tr><td><a href="../plugins/withReleaseSigning.js">plugins/withReleaseSigning.js</a> · <a href="../credentials.example/keystore.properties">credentials.example/</a></td><td>Release signing</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<footer>
+  <p>Generated 2026-10-20 against <code>81ddd19</code>. If the code and this page disagree, the code is right and this page is stale.</p>
+</footer>
+<a class="back" href="#index">↑ Index</a>
+</main>
+</body>
+</html>
