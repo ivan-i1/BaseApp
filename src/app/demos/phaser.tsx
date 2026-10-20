@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
@@ -40,7 +41,7 @@ export default function PhaserDemo() {
   };
 
   return (
-    <View style={[styles.fill, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.fill, { backgroundColor: colors.background }]}>
       <PhaserView ref={game} onEvent={onEvent} background={colors.background} />
       <View pointerEvents="box-none" style={styles.hud}>
         <View pointerEvents="none" style={styles.text}>
@@ -50,7 +51,7 @@ export default function PhaserDemo() {
         <Button variant="secondary" label="II" accessibilityLabel={t('menu.paused')} onPress={() => open('pause')} />
       </View>
       <MenuHost menus={menus} />
-    </View>
+    </SafeAreaView>
   );
 }
 

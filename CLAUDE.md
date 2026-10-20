@@ -23,6 +23,7 @@ The gates only reach pure logic. Sensors, audio, haptics, rendering and the WebV
   - Adding a setting means editing the type, `DEFAULT_SETTINGS` and `mergeSettings` together.
 - **Every frame-loop force is scaled by `dtf`** (`frameScale`). The loop runs at the display rate, so unscaled code runs twice as fast on 120 Hz phones.
 - **RNGE reads `entities` once at mount.** Keep the object stable (a `useRef`) and mutate it from systems.
+- **Entity renderers must start with `'use no memo'`.** The React Compiler is on (`app.json` → `experiments.reactCompiler`). It memoises components on the assumption that props are immutable, but RNGE re-renders entities by mutating them in place. Without the directive the entity freezes on its first frame. This was seen on Android and web: 2 renders instead of thousands.
 - **Pure logic goes in import-free modules** (`bounce.ts`, `pickVariant.ts`, `tilt.ts`, `retry.ts`, `menuModel.ts`, `settings.ts`, `languages.ts`) with tests in `__tests__/`.
 - **Phaser** code under `src/engines/phaser/` must import only `phaser` and relative files. It is bundled by esbuild into the native WebView page (`generated/phaserHtml.ts`, gitignored, rebuilt on postinstall). On web, `PhaserView.web.tsx` dynamic-imports `game.ts`. Host and game talk only through the types in `bridge.ts`.
 - **Metro** disables package exports only for `rxjs`/`tslib`, because react-native-game-engine needs that for web. Do not disable it globally: Phaser resolves through exports.

@@ -2,6 +2,8 @@ import * as Phaser from 'phaser';
 
 import type { GameEvent, HostCommand } from '../bridge';
 
+const MIN_IMPACT_SPEED = 90; // px/s
+
 /**
  * Example scene: a ball under gravity that you launch by tapping. Replace with your
  * own scenes; keep talking to the host only through `emit` and `onCommand`.
@@ -27,7 +29,11 @@ export class BounceScene extends Phaser.Scene {
     this.ball.setCollideWorldBounds(true).setBounce(0.8).setVelocity(180, 0);
     (this.ball.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
 
-    this.physics.world.on('worldbounds', () => {
+    // Arcade fires 'worldbounds' every frame while the ball rests on or slides along a
+    // wall, so only count hits with real speed INTO that wall (the perpendicular axis).
+    this.physics.world.on('worldbounds', (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean) => {
+      const into = up || down ? Math.abs(body.velocity.y) : Math.abs(body.velocity.x);
+      if (into < MIN_IMPACT_SPEED) return;
       this.bounces++;
       this.emit({ type: 'bounce', count: this.bounces });
     });

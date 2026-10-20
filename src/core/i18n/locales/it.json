@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Ciclo di gioco",
     "hint": "Inclina il telefono per far rotolare la pallina. Tocca lo schermo per mettere in pausa.",
+    "noTilt": "Qui non c’è un sensore di inclinazione, quindi la pallina cade con la gravità normale. Tocca lo schermo per mettere in pausa.",
     "bounces_one": "{{count}} rimbalzo",
     "bounces_many": "{{count}} di rimbalzi",
     "bounces_other": "{{count}} rimbalzi"

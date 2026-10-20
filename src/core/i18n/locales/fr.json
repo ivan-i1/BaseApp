@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Boucle de jeu",
     "hint": "Inclinez le téléphone pour faire rouler la bille. Touchez l’écran pour mettre en pause.",
+    "noTilt": "Pas de capteur d’inclinaison ici : la bille tombe avec la gravité normale. Touchez l’écran pour mettre en pause.",
     "bounces_one": "{{count}} rebond",
     "bounces_many": "{{count}} de rebonds",
     "bounces_other": "{{count}} rebonds"

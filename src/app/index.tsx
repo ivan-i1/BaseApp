@@ -45,5 +45,5 @@ export default function Home() {
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: 8, paddingVertical: 12 },
   logo: { width: 96, height: 96, borderRadius: 22 },
-  center: { textAlign: 'center' },
+  center: { textAlign: 'center', alignSelf: 'stretch' },
 });

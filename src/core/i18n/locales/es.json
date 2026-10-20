@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Bucle de juego",
     "hint": "Inclina el teléfono para mover la bolita. Toca la pantalla para pausar.",
+    "noTilt": "Aquí no hay sensor de inclinación, así que la bolita cae con gravedad normal. Toca la pantalla para pausar.",
     "bounces_one": "{{count}} rebote",
     "bounces_many": "{{count}} de rebotes",
     "bounces_other": "{{count}} rebotes"

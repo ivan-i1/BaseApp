@@ -15,6 +15,8 @@ export type System<E> = (entities: E, frame: FrameContext) => E;
  *
  * `entities` is read ONCE at mount (an RNGE rule). Keep the object stable (useRef)
  * and mutate it from systems; `running={false}` pauses the loop.
+ * Every entity `renderer` component must begin with the `'use no memo'` directive —
+ * the React Compiler otherwise memoises it against the mutated entity and it freezes.
  */
 export function GameLoopView<E extends Record<string, any>>({
   entities,

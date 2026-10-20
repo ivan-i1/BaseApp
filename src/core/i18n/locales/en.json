@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Game loop",
     "hint": "Tilt the phone to roll the ball. Tap the screen to pause.",
+    "noTilt": "No tilt sensor here, so the ball falls with normal gravity. Tap the screen to pause.",
     "bounces_one": "{{count}} bounce",
     "bounces_other": "{{count}} bounces"
   },

@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Loop de jogo",
     "hint": "Incline o celular para rolar a bolinha. Toque na tela para pausar.",
+    "noTilt": "Não há sensor de inclinação aqui, então a bolinha cai com a gravidade normal. Toque na tela para pausar.",
     "bounces_one": "{{count}} quique",
     "bounces_many": "{{count}} de quiques",
     "bounces_other": "{{count}} quiques"

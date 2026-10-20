@@ -43,6 +43,7 @@
   "gameLoop": {
     "title": "Spielschleife",
     "hint": "Neige das Handy, um die Kugel rollen zu lassen. Tippe auf den Bildschirm zum Pausieren.",
+    "noTilt": "Hier gibt es keinen Neigungssensor, daher fällt die Kugel mit normaler Schwerkraft. Tippe auf den Bildschirm zum Pausieren.",
     "bounces_one": "{{count}} Abpraller",
     "bounces_other": "{{count}} Abpraller"
   },

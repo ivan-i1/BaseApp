@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { useTheme } from '@/core/theme/useTheme';
@@ -17,7 +18,11 @@ const MIN_FEEDBACK_SPEED = 1.5; // ignore resting micro-bounces
 
 type Entities = { ball: Ball & { color: string; renderer: typeof BallView } };
 
+// Entity renderers MUST opt out of the React Compiler: RNGE re-renders them with the
+// same entity object mutated in place, which the compiler's memoisation treats as
+// unchanged — the ball would freeze on its first frame.
 function BallView({ x, y, r, color }: Ball & { color: string }) {
+  'use no memo';
   return (
     <View
       pointerEvents="none"
@@ -71,16 +76,16 @@ export default function GameLoopDemo() {
   const menus = useMemo(() => ({ pause: makePauseMenu(reset), options: OptionsMenu }), [reset]);
 
   return (
-    <View style={[styles.fill, { backgroundColor: colors.background }]}>
+    <SafeAreaView edges={['bottom', 'left', 'right']} style={[styles.fill, { backgroundColor: colors.background }]}>
       <GameLoopView entities={entities} systems={systems} running={!paused}>
         <Pressable style={StyleSheet.absoluteFill} accessibilityLabel={t('menu.paused')} onPress={() => open('pause')} />
       </GameLoopView>
       <View pointerEvents="none" style={styles.hud}>
         <Text variant="heading">{t('gameLoop.bounces', { count: bounces })}</Text>
-        <Text variant="caption">{sensor === false ? t('media.unavailable') : t('gameLoop.hint')}</Text>
+        <Text variant="caption">{sensor === false ? t('gameLoop.noTilt') : t('gameLoop.hint')}</Text>
       </View>
       <MenuHost menus={menus} />
-    </View>
+    </SafeAreaView>
   );
 }
 
