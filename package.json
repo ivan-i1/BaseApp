@@ -22,7 +22,12 @@
     "phaser:build": "node scripts/build-phaser-html.mjs",
     "rename": "node scripts/rename-app.js",
     "postinstall": "node scripts/build-phaser-html.mjs",
-    "doctor": "npx expo-doctor"
+    "doctor": "npx expo-doctor",
+    "cap:install": "npm --prefix capacitor install",
+    "cap:android": "npm --prefix capacitor run android:run",
+    "cap:apk": "npm --prefix capacitor run android:apk",
+    "cap:bundle": "npm --prefix capacitor run android:bundle",
+    "cap:ios": "npm --prefix capacitor run ios:open"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -85,7 +90,8 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/.claude/"
+      "<rootDir>/.claude/",
+      "<rootDir>/capacitor/"
     ]
   }
 }

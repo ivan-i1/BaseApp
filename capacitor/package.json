@@ -1,0 +1,29 @@
+{
+  "name": "base-app-capacitor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Optional Capacitor shell for Phaser-only games: the shared Phaser game in the system WebView, without React Native.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p . && vite build",
+    "native": "node scripts/prepare-native.mjs",
+    "android:apk": "npm run build && npm run native && cd android && ./gradlew assembleDebug",
+    "android:bundle": "npm run build && npm run native && cd android && ./gradlew bundleRelease",
+    "android:run": "npm run build && npm run native && cap run android",
+    "ios:open": "npm run build && npm run native && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3",
+    "@types/node": "^22.0.0",
+    "typescript": "~5.9.2",
+    "vite": "^8.3.4"
+  }
+}

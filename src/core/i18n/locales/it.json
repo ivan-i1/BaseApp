@@ -50,7 +50,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "Una scena Phaser dentro l’app. Tocca per lanciare la pallina.",
+    "hint": "Una scena Phaser dentro l’app. Fai rotolare con ◀ ▶ (o le frecce), spingi su con JUMP (o Spazio) o tocca per lanciare la pallina.",
     "bounces_one": "{{count}} rimbalzo",
     "bounces_many": "{{count}} di rimbalzi",
     "bounces_other": "{{count}} rimbalzi"

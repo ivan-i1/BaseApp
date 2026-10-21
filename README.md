@@ -11,6 +11,8 @@ A starting point for new mobile and web apps. It is one Expo project that runs o
 | Menu manager (pause, options, nested menus, Android back) | `src/menu/` | Bounce Fidget and Pinbolita control bar |
 | Game loop engine (react-native-game-engine plus refresh-rate-independent `frameScale`) | `src/engines/game-loop/` | Bounce Fidget, Pinbolita |
 | Phaser engine (runs natively in the page on web, in an offline WebView on Android and iOS) | `src/engines/phaser/` | swap (Phaser port), Dino-runner plan |
+| On-screen touch controls + shared key latch for Phaser scenes (keyboard and touch feed the same keys) | `src/engines/phaser/input/` | swap |
+| Optional Capacitor shell for Phaser-only games (no React Native) | `capacitor/` | swap |
 | Audio engine (overlapping-voice sound banks, custom user sounds, generated SFX) | `src/engines/audio/` | Bounce Fidget, Pinbolita |
 | Haptics, gated by the Vibration setting | `src/engines/haptics/` | Bounce Fidget, Pinbolita |
 | Tilt and shake sensors with calibration | `src/engines/sensors/` | Bounce Fidget, laberinto plan |
@@ -62,6 +64,39 @@ Then delete the engines and demos you don't need.
 - Background colours are read from `app.json`.
 - Icons are baked into the native projects at prebuild, so run `npm run prebuild` afterwards.
 - Images used inside the app go in `assets/images/`. Load them with `require('@assets/images/x.png')` through `expo-image`, as the Home screen does.
+
+## Phaser-only games: the Capacitor shell
+
+If a game is *only* a Phaser scene, you can ship it without React Native. `capacitor/` wraps the same
+`src/engines/phaser/game.ts` in Capacitor 8 and runs it directly in the system WebView. It uses the same
+identity (`app.json`), the same artwork (`assets/source/`) and the same `credentials/`.
+
+```bash
+npm run cap:install        # once: installs capacitor/'s own dependencies
+npm run cap:android        # build, generate/patch native projects, run on a device or emulator
+npm run cap:apk            # debug APK → capacitor/android/app/build/outputs/apk/debug/
+npm run cap:bundle         # signed release AAB (needs credentials/keystore.properties)
+npm run cap:ios            # open the Xcode project
+```
+
+- **Needs JDK 21**: Capacitor 8 doesn't build with 17. Android Studio's bundled runtime works:
+  `export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`.
+- `capacitor/android`, `capacitor/ios` and `capacitor/capacitor.config.json` are **generated** and gitignored,
+  like Expo's native folders. `capacitor/scripts/prepare-native.mjs` (re)creates them from `app.json` and patches
+  in the following:
+  - immersive full screen on Android
+  - release signing from `credentials/keystore.properties`
+  - version and orientation
+  - the iOS bundle id
+  - a hidden status bar
+  - the export-compliance answer
+  - icons and splash
+
+  Change the script, never the generated files.
+- **Pick one shell per app.** Both use the same app id, so the Expo build and the Capacitor build are
+  alternatives for the same store listing. They can't be installed side by side.
+- Android back closes the app (single scene). Going to the background releases every held button and pauses the scene
+  (`capacitor/src/main.ts`).
 
 ## Bundling and releases
 
