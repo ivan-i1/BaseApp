@@ -63,6 +63,7 @@
   table { border-collapse: collapse; width: 100%; background: var(--card); margin: 12px 0 20px; font-size: 0.92rem; }
   th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
   th { background: var(--code-bg); }
+  td a { overflow-wrap: anywhere; }
   .table-wrap { overflow-x: auto; }
   nav.index { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 24px 0; }
   nav.index ol { margin: 6px 0; padding-left: 22px; columns: 2; column-gap: 32px; }
@@ -184,7 +185,8 @@
     <pre><code>sample (g) {x: 0.2, y: 0.1}  →  screen {x: -0.2, y: 0.1}</code></pre></li>
   <li><div class="head"><span class="num">A2</span><span class="owner">tiltSensor.ts:43</span></div>
     <p class="action">Smoothed toward the sample (weight 0.35), then the 0.03 g dead zone is subtracted so input starts from zero at its edge instead of jumping. The result is written to the module-level <code>tilt.gravity</code>.</p>
-    <pre><code>smoothed {x: -0.07, y: 0.035}  →  tilt.gravity {x: -0.0432, y: 0.0216}</code></pre></li>
+    <pre><code>smoothed {x: -0.07, y: 0.035}  →  tilt.gravity {x: -0.0432, y: 0.0216}</code></pre>
+    <p><span class="chip verify">Verify</span> <strong>Known defect.</strong> Because the dead-zoned value is also the smoother's previous value (<code>tiltSensor.ts:43</code>), a held tilt starting from rest stays at zero unless it exceeds 0.03 / 0.35 ≈ 0.086 g (about 4.9°), not 0.03 g. Replaying line 43, a held 10° tilt settles at 0.0879 g instead of 0.1436 g. The sample above passes because 35% of its 0.224 g already clears 0.03 g. Found 2026-10-21 while building the Laberinto page; not fixed.</p></li>
   <li><div class="head"><span class="num">A3</span><span class="owner">GameLoopView → frameScale.ts:12</span></div>
     <p class="action">RNGE ticks on <code>requestAnimationFrame</code>. At 120 Hz the delta is 8.33 ms, so <code>dtf</code> = 0.5. Every force is multiplied by it; that is why the ball moves at the same speed on 60 Hz and 120 Hz screens.</p>
     <pre><code>deltaMs 8.33 → dtf 0.5</code></pre></li>
@@ -355,7 +357,7 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
   </tbody>
 </table>
 </div>
-<div class="note"><strong>Known fragile spots</strong>: React Compiler versus RNGE renderers (A6); the <code>import.meta</code> transform in <code>babel.config.js</code>, without which the web build is a blank page; platform sign differences in expo-sensors (expo issue #19229), with signs tuned on Android only; and the Android emulator's WebView, which crashed once (a Chromium check, not app code) when the machine was out of memory and not again at idle.</div>
+<div class="note"><strong>Known fragile spots</strong>: React Compiler versus RNGE renderers (A6); the <code>import.meta</code> transform in <code>babel.config.js</code>, without which the web build is a blank page; platform sign differences in expo-sensors (expo issue #19229), with signs tuned on Android only; the tilt dead zone, which is stricter than its 0.03 g constant suggests (A2); and the Android emulator's WebView, which crashed once (a Chromium check, not app code) when the machine was out of memory and not again at idle.</div>
 </section>
 
 <!-- 8 -->
