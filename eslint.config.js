@@ -5,7 +5,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', 'dist-native/*', 'src/engines/phaser/generated/*'],
+    ignores: ['dist/*', 'dist-native/*', 'src/engines/phaser/generated/*', 'capacitor/*'],
   },
   {
     // i18next's documented API is the default instance (`i18n.use(...).init(...)`).

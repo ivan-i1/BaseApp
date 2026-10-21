@@ -50,7 +50,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "Una escena de Phaser dentro de la app. Toca para lanzar la bolita.",
+    "hint": "Una escena de Phaser dentro de la app. Rueda con ◀ ▶ (o las flechas), impúlsala con JUMP (o Espacio) o toca para lanzar la bolita.",
     "bounces_one": "{{count}} rebote",
     "bounces_many": "{{count}} de rebotes",
     "bounces_other": "{{count}} rebotes"

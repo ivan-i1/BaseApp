@@ -49,7 +49,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "A Phaser scene running inside the app. Tap to launch the ball.",
+    "hint": "A Phaser scene running inside the app. Roll with ◀ ▶ (or the arrow keys), kick it up with JUMP (or Space), or tap to launch the ball.",
     "bounces_one": "{{count}} bounce",
     "bounces_other": "{{count}} bounces"
   },

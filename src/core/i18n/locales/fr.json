@@ -50,7 +50,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "Une scène Phaser dans l’app. Touchez pour lancer la bille.",
+    "hint": "Une scène Phaser dans l’app. Faites rouler avec ◀ ▶ (ou les flèches), propulsez avec JUMP (ou Espace) ou touchez pour lancer la bille.",
     "bounces_one": "{{count}} rebond",
     "bounces_many": "{{count}} de rebonds",
     "bounces_other": "{{count}} rebonds"

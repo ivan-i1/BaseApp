@@ -49,7 +49,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "Eine Phaser-Szene in der App. Tippe, um die Kugel zu werfen.",
+    "hint": "Eine Phaser-Szene in der App. Rolle mit ◀ ▶ (oder den Pfeiltasten), stoße mit JUMP (oder Leertaste) nach oben oder tippe, um die Kugel zu werfen.",
     "bounces_one": "{{count}} Abpraller",
     "bounces_other": "{{count}} Abpraller"
   },

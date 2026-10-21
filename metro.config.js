@@ -14,4 +14,11 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   return upstream ? upstream(ctx, moduleName, platform) : ctx.resolveRequest(ctx, moduleName, platform);
 };
 
+// The optional Capacitor shell has its own node_modules and generated native projects; Metro must not
+// crawl them (duplicate package names there break Haste, and the Gradle/Xcode trees are huge).
+const path = require('path');
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const capacitorDir = escapeRegExp(path.join(__dirname, 'capacitor'));
+config.resolver.blockList = [...[].concat(config.resolver.blockList ?? []), new RegExp(`^${capacitorDir}[/\\\\].*`)];
+
 module.exports = config;

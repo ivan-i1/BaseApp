@@ -50,7 +50,7 @@
   },
   "phaser": {
     "title": "Phaser",
-    "hint": "Uma cena Phaser dentro do app. Toque para lançar a bolinha.",
+    "hint": "Uma cena Phaser dentro do app. Role com ◀ ▶ (ou as setas), impulsione com JUMP (ou Espaço) ou toque para lançar a bolinha.",
     "bounces_one": "{{count}} quique",
     "bounces_many": "{{count}} de quiques",
     "bounces_other": "{{count}} quiques"
