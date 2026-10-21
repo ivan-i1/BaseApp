@@ -109,7 +109,7 @@
 
 <header>
   <h1>Base App — engineer's orientation</h1>
-  <p class="lead">A five-to-ten-minute map of <code>ivan-i1/BaseApp</code> at commit <code>81ddd19</code>. Its job is to get you to the right file quickly. The code, <a href="../README.md">README.md</a> and <a href="../CLAUDE.md">CLAUDE.md</a> remain the authority. This page is <strong>not</strong> evidence that anything is published to a store or deployed.</p>
+  <p class="lead">A five-to-ten-minute map of <code>ivan-i1/BaseApp</code> at commit <code>4aa38bf</code> (main, 2026-10-21). Its job is to get you to the right file quickly. The code, <a href="../README.md">README.md</a> and <a href="../CLAUDE.md">CLAUDE.md</a> remain the authority. This page is <strong>not</strong> evidence that anything is published to a store or deployed.</p>
   <p>Status labels are used the same way everywhere: <span class="chip current">Current</span> means in the code and observed working; <span class="chip verify">Verify</span> means in the code but not yet observed on the platform named; <span class="chip deferred">Deferred</span> means deliberately not included; <span class="chip proposed">Proposed</span> means an interface or plan exists (here or in a sibling app) but nothing is built.</p>
 </header>
 
@@ -119,9 +119,9 @@
     <li><a href="#boundary">What it does and does not do</a> <span class="chip current">Current</span></li>
     <li><a href="#stack">Modules and what each must not become</a> <span class="chip current">Current</span></li>
     <li><a href="#walkthrough">Walkthrough: one frame, one launch, one refusal</a> <span class="chip current">Current</span> A, B · <span class="chip verify">Verify</span> C</li>
-    <li><a href="#mechanics">Two mechanisms that make it work</a> <span class="chip current">Current</span></li>
+    <li><a href="#mechanics">Three mechanisms that make it work</a> <span class="chip current">Current</span></li>
     <li><a href="#data">Data anatomy: what is public, what stays private</a> <span class="chip current">Current</span></li>
-    <li><a href="#ops">Developer lifecycle: build, rename, sign</a> <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</li>
+    <li><a href="#ops">Developer lifecycle: build, rename, sign, package</a> <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</li>
     <li><a href="#ledger">Verification ledger by platform</a> <span class="chip verify">Verify</span></li>
     <li><a href="#deferred">Not included</a> <span class="chip deferred">Deferred</span></li>
     <li><a href="#docs">Further detail: which file to open</a></li>
@@ -133,10 +133,11 @@
 <h2>1. What it does and does not do <span class="chip current">Current</span></h2>
 <div class="boundary">
   <p><strong>Your app's screens and assets → Base App → one Expo project that runs, debugs and bundles on Android, iOS and web.</strong></p>
+  <p>For a game that is only a Phaser scene there is a second, optional path: <strong>the same scene → <code>capacitor/</code> → an Android/iOS app with no React Native</strong>. You pick one path per app.</p>
   <p>Base App does <strong>not</strong> contain game rules, a backend server, user accounts or any vendor API key.</p>
 </div>
 <div class="grid2">
-  <div class="card"><p class="label">Does</p><p>Gives a new app the parts that kept recurring across Bounce Fidget, Pinbolita, Tessera, Bingepick and proyecto-comun, already wired together: navigation, translations in 6 languages, saved settings, theme, menus, a game loop, Phaser, audio, haptics, tilt, an API/LLM client, icon generation, an Android release-signing plugin (your keys stay outside the repo, see Private machinery) and a rename script.</p></div>
+  <div class="card"><p class="label">Does</p><p>Gives a new app the parts that kept recurring across Bounce Fidget, Pinbolita, Tessera, Bingepick and proyecto-comun, already wired together: navigation, translations in 6 languages, saved settings, theme, menus, a game loop, Phaser, audio, haptics, tilt, an API/LLM client, icon generation, an Android release-signing plugin (your keys stay outside the repo, see Private machinery), a rename script, on-screen touch buttons for Phaser scenes, and an optional Capacitor shell.</p></div>
   <div class="card"><p class="label">Does not</p><p>Decide gameplay, host anything, or hold secrets. The demo screens under <code>src/app/demos/</code> are examples to delete, not features. It never calls a model vendor directly; that is your backend's job.</p></div>
   <div class="card"><p class="label">Public handoff</p><p>What ships to users: the JS bundle (including every <code>EXPO_PUBLIC_*</code> value, which is readable by anyone), the assets, and the requests the app sends.</p></div>
   <div class="card"><p class="label">Private machinery</p><p>What never ships: <code>credentials/</code> (upload keystore and passwords, gitignored), <code>.env.local</code>, and on your backend the vendor keys and prompts. On the device, settings and the client id stay in local storage.</p></div>
@@ -158,6 +159,8 @@
     <tr><td><a href="../src/menu/"><code>menu</code></a></td><td>A stack of menu ids (model), a store (controller), <code>MenuHost</code> (view); Android back pops</td><td>pause, options, any app menu</td><td>Navigation between screens (that is Expo Router's job)</td><td><span class="chip current">Current</span></td></tr>
     <tr><td><a href="../src/engines/game-loop/"><code>engines/game-loop</code></a></td><td>Wraps react-native-game-engine; hands every system a refresh-rate-normalised <code>dtf</code></td><td>Entities, systems, its own measured bounds</td><td>A physics engine (collision beyond screen edges is yours to add)</td><td><span class="chip current">Current</span></td></tr>
     <tr><td><a href="../src/engines/phaser/"><code>engines/phaser</code></a></td><td>Runs one Phaser scene in the page on web and in an offline WebView on Android/iOS</td><td>Scenes, the <code>bridge.ts</code> message types</td><td>A dependency of React Native code (scenes import only <code>phaser</code> and relative files)</td><td><span class="chip current">Current</span> web, Android · <span class="chip verify">Verify</span> iOS</td></tr>
+    <tr><td><a href="../src/engines/phaser/input/"><code>engines/phaser/input</code></a></td><td>One shared key latch fed by the keyboard and by on-screen touch buttons; sampled once per scene tick</td><td><code>keys</code>, each scene's <code>TouchButton[]</code></td><td>A second input path (scenes read <code>keys</code>, never Phaser's keyboard plugin, which is turned off)</td><td><span class="chip current">Current</span> web, Android · <span class="chip verify">Verify</span> iOS taps</td></tr>
+    <tr><td><a href="../capacitor/"><code>capacitor/</code></a> (optional)</td><td>Packages <code>game.ts</code> alone as a Capacitor 8 app; native projects generated from <code>app.json</code></td><td>Its own <code>package.json</code>, Vite build, <code>prepare-native.mjs</code></td><td>A second app next to the Expo one (same app id: one shell per app) or a place for React Native code</td><td><span class="chip current">Current</span> Android · <span class="chip verify">Verify</span> iOS taps, release</td></tr>
     <tr><td><a href="../src/engines/audio/"><code>engines/audio</code></a></td><td>Sound banks with overlapping voices and non-repeating variants; user-picked custom sounds</td><td>Generated WAVs in <code>assets/sounds/</code></td><td>Music or long playback (it is built for short effects)</td><td><span class="chip verify">Verify</span> (not listened to)</td></tr>
     <tr><td><a href="../src/engines/haptics/haptics.ts"><code>engines/haptics</code></a></td><td>One entry point that honours the Vibration setting and is a no-op on web</td><td>tap, impact, success, error</td><td>Direct <code>expo-haptics</code> calls scattered in screens</td><td><span class="chip verify">Verify</span> (emulators have no actuator)</td></tr>
     <tr><td><a href="../src/engines/sensors/"><code>engines/sensors</code></a></td><td>Accelerometer → smoothed, calibrated, dead-zoned "downhill" vector; shake events</td><td>Module-level <code>tilt</code> read each frame</td><td>React state (it updates every 16 ms)</td><td><span class="chip verify">Verify</span> real tilt; iOS axis signs unverified</td></tr>
@@ -248,7 +251,7 @@ t("gameLoop.bounces", {count: 6}) → "6 rebotes"   (observed on Android)</code>
 
 <!-- 4 -->
 <section id="mechanics">
-<h2>4. Two mechanisms that make it work <span class="chip current">Current</span></h2>
+<h2>4. Three mechanisms that make it work <span class="chip current">Current</span></h2>
 
 <h3>One store, read two ways</h3>
 <p>The game loop, the sensor callback and the audio engine run outside React's render cycle, every frame. They read settings synchronously with <code>useSettings.getState()</code>, while screens subscribe with <code>useSettings(selector)</code>. Bounce Fidget kept settings in module variables and wrote to both places; forgetting one write made the slider move while the ball ignored it. One store removes that class of bug.</p>
@@ -257,18 +260,35 @@ t("gameLoop.bounces", {count: 6}) → "6 rebotes"   (observed on Android)</code>
                                  │
           React screens ◄── subscribe        frame loop / sensors / audio ◄── getState()</code></pre>
 
-<h3>Phaser: one scene, two hosts</h3>
-<p>Phaser needs a DOM and a canvas, and React Native has neither. So the same scene code runs in two places:</p>
+<h3>Phaser: one scene, three hosts</h3>
+<p>Phaser needs a DOM and a canvas, and React Native has neither. So the same scene code runs in up to three places:</p>
 <div class="grid3">
   <div class="card"><p class="label">Shared</p><p><code>scenes/*.ts</code> + <code>game.ts</code> import only <code>phaser</code> and relative files. They talk to the host only through <a href="../src/engines/phaser/bridge.ts"><code>bridge.ts</code></a>.</p></div>
-  <div class="card"><p class="label">Web host</p><p><code>PhaserView.web.tsx</code> dynamic-imports <code>game.ts</code> and mounts Phaser into the page. Phaser lands in its own chunk (1.66 MB in the <code>expo export</code> output), not the main bundle.</p></div>
-  <div class="card"><p class="label">Native host</p><p><code>npm run phaser:build</code> (also run on postinstall) bundles Phaser + scenes into one HTML string (1,358 KB, as the script reports). <code>PhaserView.tsx</code> loads it in a WebView. It works offline.</p></div>
+  <div class="card"><p class="label">Web host</p><p><code>PhaserView.web.tsx</code> dynamic-imports <code>game.ts</code> and mounts Phaser into the page. Phaser lands in its own chunk (1.66 MB in the <code>expo export</code> output, measured at <code>81ddd19</code>), not the main bundle.</p></div>
+  <div class="card"><p class="label">Native host</p><p><code>npm run phaser:build</code> (also run on postinstall) bundles Phaser + scenes into one HTML string (1,362 KB at <code>4aa38bf</code>, as the script reports). <code>PhaserView.tsx</code> loads it in a WebView. It works offline.</p></div>
+  <div class="card"><p class="label">Capacitor host (optional)</p><p><code>capacitor/src/main.ts</code> calls the same <code>startGame</code> with Vite and no React Native. On native it adds the app glue: Android back exits, backgrounding releases keys and pauses.</p></div>
 </div>
 <p class="label">Schema-valid against <code>GameEvent</code> in <a href="../src/engines/phaser/bridge.ts">bridge.ts</a> — game → host, sent as a JSON string through <code>postMessage</code> on native</p>
 <pre><code>{"type":"bounce","count":11}</code></pre>
 <p class="label">Schema-valid against <code>HostCommand</code> — host → game; native wraps it as <code>window.__hostCommand(…)</code></p>
 <pre><code>{"type":"pause"}</code></pre>
-<p>The menu system drives the game: any open menu sends <code>pause</code>, and closing sends <code>resume</code>.</p>
+<p>The menu system drives the game: any open menu sends <code>pause</code>, and closing sends <code>resume</code>. On <code>pause</code> the scene also calls <code>keys.releaseAll()</code>, so a button held when the menu opened is not still held after it closes.</p>
+
+<h3>Input: one latch, two sources, sampled once per tick</h3>
+<p>On a touch device <code>game.ts</code> mounts the scene's buttons (<code>BOUNCE_BUTTONS</code>: ◀, ▶, JUMP) over the canvas; on a keyboard the arrow keys and Space write to the same latch. Each button holds its key while its finger is down (pointer capture, multi-touch) and stops the touch reaching the canvas. The scene calls <code>keys.sample()</code> at the top of <code>update()</code>, then reads <code>pressed</code> and <code>justPressed</code>. A key stays pressed until <em>every</em> source has let go.</p>
+<p class="label">Semantic display excerpt — what the real <code>KeyLatch</code> returns for <code>LEFT</code> after each <code>sample()</code></p>
+<table>
+  <thead><tr><th>Tick</th><th>Event</th><th>True after <code>sample()</code></th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>touch down</td><td><code>pressed</code>, <code>justPressed</code></td></tr>
+    <tr><td>2</td><td>keyboard down as well</td><td><code>pressed</code></td></tr>
+    <tr><td>3</td><td>touch up</td><td><code>pressed</code> (the keyboard still holds it)</td></tr>
+    <tr><td>4</td><td>keyboard up</td><td><code>justReleased</code></td></tr>
+    <tr><td>5</td><td>nothing</td><td>none</td></tr>
+    <tr><td>any</td><td>a tap that starts and ends between two samples</td><td>all three</td></tr>
+  </tbody>
+</table>
+<div class="note"><strong><code>justPressed</code> lasts exactly one tick.</strong> That is why the demo's JUMP kicks on every press instead of checking "on the ground": a bouncing ball is grounded for so few frames that a grounded check plus a one-frame press missed almost every tap. A real platformer needs a ground check <em>and</em> a jump buffer of a few frames.</div>
 </section>
 
 <!-- 5 -->
@@ -294,7 +314,7 @@ t("gameLoop.bounces", {count: 6}) → "6 rebotes"   (observed on Android)</code>
 
 <!-- 6 -->
 <section id="ops">
-<h2>6. Developer lifecycle: build, rename, sign <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</h2>
+<h2>6. Developer lifecycle: build, rename, sign, package <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release signing</h2>
 <p>This is separate from the runtime above: what you do to make a new app from Base App and ship it.</p>
 <ol class="trace">
   <li><div class="head"><span class="num">D1</span><span class="owner">scripts/rename-app.js</span> <span class="chip current">Current</span></div>
@@ -308,14 +328,16 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
   <li><div class="head"><span class="num">D3</span><span class="owner">expo prebuild → plugins/withReleaseSigning.js</span> <span class="chip verify">Verify</span></div>
     <p class="action">On every prebuild the plugin adds a release signing config that reads <code>credentials/keystore.properties</code> at Gradle time. Without it, release builds fall back to the debug key with a warning, and Play rejects those. The patch was confirmed in the generated <code>build.gradle</code>. <strong>A signed release build has not been run.</strong></p></li>
   <li><div class="head"><span class="num">D4</span><span class="owner">npm run check · export:web · export:native</span> <span class="chip current">Current</span></div>
-    <p class="action">Typecheck + 50 unit tests (10 suites) + lint, then bundle builds for all three platforms. All ran green on <code>81ddd19</code> on 2026-10-20. These gates only reach the pure logic; rendering, audio, haptics and sensors need a device.</p></li>
+    <p class="action">Typecheck + 55 unit tests (11 suites) + lint. All ran green on <code>4aa38bf</code> on 2026-10-21; the three bundle builds last ran on <code>81ddd19</code>. These gates only reach the pure logic; rendering, audio, haptics and sensors need a device.</p></li>
+  <li><div class="head"><span class="num">D5</span><span class="owner">capacitor/scripts/prepare-native.mjs</span> <span class="chip current">Current</span> · <span class="chip verify">Verify</span> release</div>
+    <p class="action">Only for the optional Capacitor path. <code>npm run cap:install</code> once, then <code>npm run cap:apk</code> / <code>cap:bundle</code> / <code>cap:ios</code>. The script writes <code>capacitor.config.json</code> from <code>app.json</code>, generates <code>capacitor/android</code> and <code>capacitor/ios</code> (gitignored), makes icons and splash from <code>assets/source/</code>, and patches: immersive full screen, release signing from the same <code>credentials/</code>, versions, orientation, the iOS bundle id and a hidden status bar. Running it twice leaves the patched files byte-identical. <strong>Needs JDK 21</strong> (Android Studio's bundled runtime works; the system JDK 17 does not). A debug APK and an iOS simulator build were made; <strong>a signed release has not been.</strong></p></li>
 </ol>
 </section>
 
 <!-- 7 -->
 <section id="ledger">
 <h2>7. Verification ledger by platform <span class="chip verify">Verify</span></h2>
-<p>What was actually observed on 2026-10-20, and on what. <span class="chip verify">Verify</span> here means nobody has looked yet on that platform, not that it is broken.</p>
+<p>What was actually observed on 2026-10-20 and 2026-10-21, and on what. <span class="chip verify">Verify</span> here means nobody has looked yet on that platform, not that it is broken.</p>
 <div class="table-wrap">
 <table class="ledger-table">
   <thead><tr><th>Feature</th><th>Android (emulator)</th><th>iOS (simulator)</th><th>Web (Chrome)</th></tr></thead>
@@ -325,13 +347,15 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
     <tr><td>Theme follows the device (light on Android, dark in headless Chrome)</td><td><span class="chip current">Current</span></td><td><span class="chip current">Current</span> light</td><td><span class="chip current">Current</span></td></tr>
     <tr><td>Game loop + pause/options menus</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip current">Current</span> ball renders (fallback gravity)</td></tr>
     <tr><td>Phaser + bridge events</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip current">Current</span></td></tr>
+    <tr><td>Phaser touch buttons (◀ hold rolls, JUMP lifts)</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span> taps not sent</td><td><span class="chip current">Current</span> emulated touch; keyboard too; no buttons without touch</td></tr>
+    <tr><td>Capacitor shell: full screen, splash, icon, buttons</td><td><span class="chip current">Current</span> back closes the app</td><td><span class="chip current">Current</span> builds, renders, status bar hidden · <span class="chip verify">Verify</span> taps</td><td>Vite build only (not a target)</td></tr>
     <tr><td>API demo with the offline fake provider (no network)</td><td><span class="chip current">Current</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td></tr>
     <tr><td>HTTP streaming and 429 against a real server</td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td><td><span class="chip verify">Verify</span></td></tr>
     <tr><td>Real tilt, shake, haptics, audible sound</td><td colspan="3" class="all"><span class="chip verify">Verify</span> on a physical phone. Emulators give a fixed sensor reading, no actuator and no listener.</td></tr>
   </tbody>
 </table>
 </div>
-<div class="note"><strong>Known fragile spots</strong>: React Compiler versus RNGE renderers (A6); the <code>import.meta</code> transform in <code>babel.config.js</code>, without which the web build is a blank page; and platform sign differences in expo-sensors (expo issue #19229), with signs tuned on Android only.</div>
+<div class="note"><strong>Known fragile spots</strong>: React Compiler versus RNGE renderers (A6); the <code>import.meta</code> transform in <code>babel.config.js</code>, without which the web build is a blank page; platform sign differences in expo-sensors (expo issue #19229), with signs tuned on Android only; and the Android emulator's WebView, which crashed once (a Chromium check, not app code) when the machine was out of memory and not again at idle.</div>
 </section>
 
 <!-- 8 -->
@@ -342,6 +366,7 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
   <li><span class="chip deferred">Deferred</span> <strong>Ads, analytics, leaderboards.</strong> None of the source apps or plans use them; leaderboards were explicitly deferred to local-only in the Dino-runner plan.</li>
   <li><span class="chip deferred">Deferred</span> <strong>UI / device tests.</strong> Only pure logic is unit-tested.</li>
   <li><span class="chip proposed">Proposed</span> <strong>On-device LLM provider.</strong> Tessera has a stub interface for one. Base App's <code>LLMProvider</code> would accept it, but none exists.</li>
+  <li><span class="chip deferred">Deferred</span> <strong>Multi-scene back navigation in the Capacitor shell.</strong> Android back exits the app, which is right for one scene; a title screen would need back to go there first.</li>
   <li><span class="chip deferred">Deferred</span> <strong>Collision beyond screen edges.</strong> Maze walls, holes and sub-stepping belong to the app (see <code>laberinto-de-bolita</code>'s ADV-REV-V1 §3.4).</li>
 </ul>
 </section>
@@ -360,6 +385,8 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
     <tr><td><a href="../src/core/settings/settings.ts">core/settings/settings.ts</a></td><td>The settings type, defaults and validation (edit all three together)</td></tr>
     <tr><td><a href="../src/core/i18n/locales/en.json">core/i18n/locales/en.json</a></td><td>The reference string file; the other five must match its keys</td></tr>
     <tr><td><a href="../src/engines/phaser/bridge.ts">engines/phaser/bridge.ts</a></td><td>The full host ↔ game message contract</td></tr>
+    <tr><td><a href="../src/engines/phaser/input/keyLatch.ts">engines/phaser/input/keyLatch.ts</a> · <a href="../src/engines/phaser/input/touchControls.ts">touchControls.ts</a></td><td>The input latch and the on-screen buttons a scene declares</td></tr>
+    <tr><td><a href="../capacitor/scripts/prepare-native.mjs">capacitor/scripts/prepare-native.mjs</a></td><td>Every native patch the Capacitor shell applies, and the JDK / one-shell-per-app caveats (also in README)</td></tr>
     <tr><td><a href="../src/engines/api/llm/types.ts">engines/api/llm/types.ts</a></td><td>The <code>LLMRequest</code> / <code>LLMProvider</code> contract your backend must match</td></tr>
     <tr><td><a href="../src/engines/api/client.ts">engines/api/client.ts</a></td><td>Headers, retries, 429, streaming</td></tr>
     <tr><td><a href="../__tests__/">__tests__/</a></td><td>Executable statements of every pure rule on this page</td></tr>
@@ -371,7 +398,7 @@ storage prefix @laberinto-de-bolita · version 0.1.0 · versionCode 1</code></pr
 </section>
 
 <footer>
-  <p>Generated 2026-10-20 against <code>81ddd19</code>. If the code and this page disagree, the code is right and this page is stale.</p>
+  <p>Generated 2026-10-20 against <code>81ddd19</code>; updated 2026-10-21 against <code>4aa38bf</code>. If the code and this page disagree, the code is right and this page is stale.</p>
 </footer>
 <a class="back" href="#index">↑ Index</a>
 </main>
