@@ -23,6 +23,8 @@ A starting point for new mobile and web apps. It is one Expo project that runs o
 
 Each engine is self-contained. To drop one, delete its folder and its demo screen.
 
+New to the code? Open [`explainer-site/index.html`](explainer-site/index.html) in a browser. It's a 10-minute orientation that traces one frame, one launch and one refused request through the modules, and records what has been verified on each platform.
+
 ## Quick start
 
 ```bash
